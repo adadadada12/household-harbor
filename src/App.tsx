@@ -12,6 +12,9 @@ import NotFound from "./pages/NotFound";
 import { ItemProvider } from "@/context/ItemContext";
 import { LanguageProvider } from "@/context/LanguageContext";
 
+// Set up global styles for the orange theme
+import "./index.css";
+
 const queryClient = new QueryClient();
 
 const App = () => (

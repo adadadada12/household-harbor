@@ -90,8 +90,9 @@ const Dashboard: React.FC = () => {
       {/* Floating Action Button for adding items */}
       <Button
         onClick={() => setShowAddModal(true)}
+        variant="orange"
         size="icon"
-        className="h-14 w-14 rounded-full fixed bottom-20 right-5 shadow-lg z-10"
+        className="h-14 w-14 rounded-full fixed bottom-24 right-6 shadow-lg z-10"
       >
         <Plus size={24} />
       </Button>
