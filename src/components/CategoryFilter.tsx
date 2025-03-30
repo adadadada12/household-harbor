@@ -11,35 +11,32 @@ interface CategoryFilterProps {
 
 const CategoryFilterComponent: React.FC<CategoryFilterProps> = ({ selectedCategory, onChange }) => {
   return (
-    <div className="flex justify-center gap-4 my-4">
+    <div className="grid grid-cols-3 gap-2 my-4">
       <Button
         variant={selectedCategory === 'all' ? "secondary" : "outline"}
-        size="sm"
         onClick={() => onChange('all')}
-        className="flex items-center gap-1"
+        className="flex items-center justify-center w-full"
       >
-        <LayoutGrid size={16} />
-        <span className="hidden sm:inline">All</span>
+        <LayoutGrid size={18} className="mr-1" />
+        <span>All</span>
       </Button>
       
       <Button
         variant={selectedCategory === 'food' ? "secondary" : "outline"}
-        size="sm"
         onClick={() => onChange('food')}
-        className="flex items-center gap-1"
+        className="flex items-center justify-center w-full"
       >
-        <Apple size={16} className="text-food" />
-        <span className="hidden sm:inline">Food</span>
+        <Apple size={18} className="text-food mr-1" />
+        <span>Food</span>
       </Button>
       
       <Button
         variant={selectedCategory === 'household' ? "secondary" : "outline"}
-        size="sm"
         onClick={() => onChange('household')}
-        className="flex items-center gap-1"
+        className="flex items-center justify-center w-full"
       >
-        <Pill size={16} className="text-household" />
-        <span className="hidden sm:inline">Household</span>
+        <Pill size={18} className="text-household mr-1" />
+        <span>Household</span>
       </Button>
     </div>
   );

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -30,7 +29,7 @@ const ItemModal: React.FC<ItemModalProps> = ({
   const [name, setName] = useState('');
   const [category, setCategory] = useState<Category>('food');
   const [quantity, setQuantity] = useState(1);
-  const [expiryTab, setExpiryTab] = useState('date');
+  const [expiryTab, setExpiryTab] = useState('days');
   const [expireDate, setExpireDate] = useState('');
   const [daysUntilExpiry, setDaysUntilExpiry] = useState(6);
   const [purchaseDate, setPurchaseDate] = useState('');
@@ -45,11 +44,9 @@ const ItemModal: React.FC<ItemModalProps> = ({
       setPurchaseDate(item.purchaseDate || '');
       setExpiryTab('date');
     } else {
-      // Default values for new item
       setName('');
       setCategory('food');
       setQuantity(1);
-      // Set today's date as default
       const today = new Date();
       setExpireDate(format(today, 'yyyy-MM-dd'));
       setPurchaseDate('');
@@ -108,7 +105,6 @@ const ItemModal: React.FC<ItemModalProps> = ({
     onClose();
   };
 
-  // Safely format a date string for display
   const safelyFormatDate = (dateString: string): string => {
     try {
       const date = new Date(dateString);
@@ -178,19 +174,9 @@ const ItemModal: React.FC<ItemModalProps> = ({
             <Label>Expiry Information</Label>
             <Tabs value={expiryTab} onValueChange={handleExpiryTabChange} className="w-full">
               <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="date">Specific Date</TabsTrigger>
                 <TabsTrigger value="days">Days Until Expiry</TabsTrigger>
+                <TabsTrigger value="date">Specific Date</TabsTrigger>
               </TabsList>
-              
-              <TabsContent value="date" className="pt-2">
-                <Input 
-                  type="date" 
-                  value={expireDate}
-                  onChange={(e) => setExpireDate(e.target.value)}
-                  className={errors.expireDate ? "border-red-500" : ""}
-                />
-                {errors.expireDate && <p className="text-xs text-red-500">{errors.expireDate}</p>}
-              </TabsContent>
               
               <TabsContent value="days" className="pt-2">
                 <Input 
@@ -202,6 +188,16 @@ const ItemModal: React.FC<ItemModalProps> = ({
                 <p className="text-xs text-muted-foreground mt-1">
                   Will expire on {validateDateString(expireDate) ? safelyFormatDate(expireDate) : 'calculating...'}
                 </p>
+              </TabsContent>
+              
+              <TabsContent value="date" className="pt-2">
+                <Input 
+                  type="date" 
+                  value={expireDate}
+                  onChange={(e) => setExpireDate(e.target.value)}
+                  className={errors.expireDate ? "border-red-500" : ""}
+                />
+                {errors.expireDate && <p className="text-xs text-red-500">{errors.expireDate}</p>}
               </TabsContent>
             </Tabs>
           </div>

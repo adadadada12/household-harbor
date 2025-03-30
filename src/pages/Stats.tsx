@@ -1,4 +1,3 @@
-
 import React from 'react';
 import Navbar from '@/components/Navbar';
 import { useItems } from '@/context/ItemContext';
@@ -74,7 +73,7 @@ const Stats: React.FC = () => {
   };
   
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 pb-20">
       <Navbar />
       
       <main className="container mx-auto px-4 py-6">

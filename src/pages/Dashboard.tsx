@@ -56,7 +56,7 @@ const Dashboard: React.FC = () => {
   const items = getFilteredAndSortedItems();
   
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 pb-20">
       <Navbar />
       
       <main className="container mx-auto px-4 py-6">
@@ -68,7 +68,7 @@ const Dashboard: React.FC = () => {
         {items.length === 0 ? (
           <EmptyState onAddItem={() => setShowAddModal(true)} />
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 gap-4">
             {items.map(item => (
               <ItemCard 
                 key={item.id} 
