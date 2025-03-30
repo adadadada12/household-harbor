@@ -10,26 +10,29 @@ import Stats from "./pages/Stats";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import { ItemProvider } from "@/context/ItemContext";
+import { LanguageProvider } from "@/context/LanguageContext";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider defaultTheme="light" storageKey="household-harbor-theme">
-      <TooltipProvider>
-        <ItemProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/stats" element={<Stats />} />
-              <Route path="/settings" element={<Settings />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </ItemProvider>
-      </TooltipProvider>
+      <LanguageProvider>
+        <TooltipProvider>
+          <ItemProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/stats" element={<Stats />} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </ItemProvider>
+        </TooltipProvider>
+      </LanguageProvider>
     </ThemeProvider>
   </QueryClientProvider>
 );

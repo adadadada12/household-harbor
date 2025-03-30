@@ -8,13 +8,18 @@ export const generateId = (): string => {
 };
 
 export const calculateDaysUntilExpiry = (expireDate: string): number => {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  
-  const expiryDate = new Date(expireDate);
-  expiryDate.setHours(0, 0, 0, 0);
-  
-  return differenceInDays(expiryDate, today);
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const expiryDate = new Date(expireDate);
+    expiryDate.setHours(0, 0, 0, 0);
+    
+    return differenceInDays(expiryDate, today);
+  } catch (e) {
+    console.error("Error calculating days until expiry:", e);
+    return 0;
+  }
 };
 
 export const getExpirySeverity = (daysUntilExpiry: number): ExpirySeverity => {
@@ -73,4 +78,9 @@ export const validateDateString = (dateString: string): boolean => {
   } catch (e) {
     return false;
   }
+};
+
+export const shouldNotifyForItem = (item: Item, daysBeforeExpiry: number): boolean => {
+  const daysUntil = calculateDaysUntilExpiry(item.expireDate);
+  return daysUntil >= 0 && daysUntil <= daysBeforeExpiry;
 };

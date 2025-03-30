@@ -10,6 +10,7 @@ import { calculateExpireDateFromDays, validateDateString } from '@/utils/itemUti
 import { format, isValid } from 'date-fns';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface ItemModalProps {
   isOpen: boolean;
@@ -26,6 +27,7 @@ const ItemModal: React.FC<ItemModalProps> = ({
   onDelete,
   item
 }) => {
+  const { t } = useLanguage();
   const [name, setName] = useState('');
   const [category, setCategory] = useState<Category>('food');
   const [quantity, setQuantity] = useState(1);
@@ -42,16 +44,24 @@ const ItemModal: React.FC<ItemModalProps> = ({
       setQuantity(item.quantity);
       setExpireDate(item.expireDate);
       setPurchaseDate(item.purchaseDate || '');
+      
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const expiry = new Date(item.expireDate);
+      const diffTime = expiry.getTime() - today.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      setDaysUntilExpiry(Math.max(0, diffDays));
+      
       setExpiryTab('date');
     } else {
       setName('');
       setCategory('food');
       setQuantity(1);
-      const today = new Date();
-      setExpireDate(format(today, 'yyyy-MM-dd'));
-      setPurchaseDate('');
       setDaysUntilExpiry(6);
       setExpiryTab('days');
+      const calculatedDate = calculateExpireDateFromDays(6);
+      setExpireDate(calculatedDate);
+      setPurchaseDate('');
     }
     setErrors({});
   }, [item, isOpen]);
@@ -72,11 +82,11 @@ const ItemModal: React.FC<ItemModalProps> = ({
     const newErrors: Record<string, string> = {};
     
     if (!name.trim()) {
-      newErrors.name = 'Name is required';
+      newErrors.name = t('item.name') + ' is required';
     }
     
     if (quantity < 1) {
-      newErrors.quantity = 'Quantity must be at least 1';
+      newErrors.quantity = t('item.quantity') + ' must be at least 1';
     }
     
     if (!validateDateString(expireDate)) {
@@ -118,64 +128,55 @@ const ItemModal: React.FC<ItemModalProps> = ({
     <Dialog open={isOpen} onOpenChange={open => !open && onClose()}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{item ? 'Edit Item' : 'Add New Item'}</DialogTitle>
+          <DialogTitle>{item ? t('item.edit') : t('item.add')}</DialogTitle>
         </DialogHeader>
         
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
-            <Label htmlFor="name">Item Name</Label>
+            <Label htmlFor="name">{t('item.name')}</Label>
             <Input 
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Enter item name"
+              placeholder={t('item.name')}
               className={errors.name ? "border-red-500" : ""}
             />
             {errors.name && <p className="text-xs text-red-500">{errors.name}</p>}
           </div>
 
           <div className="grid gap-2">
-            <Label>Category</Label>
+            <Label>{t('item.category')}</Label>
             <RadioGroup 
               value={category} 
               onValueChange={value => setCategory(value as Category)}
               className="flex gap-4"
             >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="food" id="food" />
-                <Label htmlFor="food" className="flex items-center gap-1 cursor-pointer">
-                  <Apple size={18} className="text-food" /> Food
-                </Label>
+              <div className="flex flex-col items-center space-y-1 flex-1">
+                <div className={`p-4 rounded-lg ${category === 'food' ? 'bg-green-100 dark:bg-green-900' : 'bg-gray-100 dark:bg-gray-800'} cursor-pointer flex justify-center`}
+                     onClick={() => setCategory('food')}>
+                  <Apple size={24} className="text-food" />
+                </div>
+                <RadioGroupItem value="food" id="food" className="sr-only" />
+                <Label htmlFor="food" className="text-sm cursor-pointer">{t('item.food')}</Label>
               </div>
               
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="household" id="household" />
-                <Label htmlFor="household" className="flex items-center gap-1 cursor-pointer">
-                  <Pill size={18} className="text-household" /> Household
-                </Label>
+              <div className="flex flex-col items-center space-y-1 flex-1">
+                <div className={`p-4 rounded-lg ${category === 'household' ? 'bg-blue-100 dark:bg-blue-900' : 'bg-gray-100 dark:bg-gray-800'} cursor-pointer flex justify-center`}
+                     onClick={() => setCategory('household')}>
+                  <Pill size={24} className="text-household" />
+                </div>
+                <RadioGroupItem value="household" id="household" className="sr-only" />
+                <Label htmlFor="household" className="text-sm cursor-pointer">{t('item.household')}</Label>
               </div>
             </RadioGroup>
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="quantity">Quantity</Label>
-            <Input 
-              id="quantity"
-              type="number" 
-              min="1"
-              value={quantity}
-              onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
-              className={errors.quantity ? "border-red-500" : ""}
-            />
-            {errors.quantity && <p className="text-xs text-red-500">{errors.quantity}</p>}
-          </div>
-
-          <div className="grid gap-2">
-            <Label>Expiry Information</Label>
+            <Label>{t('item.expiryInfo')}</Label>
             <Tabs value={expiryTab} onValueChange={handleExpiryTabChange} className="w-full">
               <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="days">Days Until Expiry</TabsTrigger>
-                <TabsTrigger value="date">Specific Date</TabsTrigger>
+                <TabsTrigger value="days">{t('item.daysUntilExpiry')}</TabsTrigger>
+                <TabsTrigger value="date">{t('item.specificDate')}</TabsTrigger>
               </TabsList>
               
               <TabsContent value="days" className="pt-2">
@@ -186,7 +187,7 @@ const ItemModal: React.FC<ItemModalProps> = ({
                   onChange={(e) => handleDaysChange(parseInt(e.target.value) || 0)}
                 />
                 <p className="text-xs text-muted-foreground mt-1">
-                  Will expire on {validateDateString(expireDate) ? safelyFormatDate(expireDate) : 'calculating...'}
+                  {t('item.willExpireOn')} {validateDateString(expireDate) ? safelyFormatDate(expireDate) : 'calculating...'}
                 </p>
               </TabsContent>
               
@@ -203,7 +204,20 @@ const ItemModal: React.FC<ItemModalProps> = ({
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="purchaseDate">Purchase Date (Optional)</Label>
+            <Label htmlFor="quantity">{t('item.quantity')}</Label>
+            <Input 
+              id="quantity"
+              type="number" 
+              min="1"
+              value={quantity}
+              onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
+              className={errors.quantity ? "border-red-500" : ""}
+            />
+            {errors.quantity && <p className="text-xs text-red-500">{errors.quantity}</p>}
+          </div>
+
+          <div className="grid gap-2">
+            <Label htmlFor="purchaseDate">{t('item.purchaseDate')}</Label>
             <Input 
               id="purchaseDate"
               type="date" 
@@ -220,30 +234,30 @@ const ItemModal: React.FC<ItemModalProps> = ({
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button variant="destructive" size="sm" className="flex items-center gap-1">
-                  <Trash2 size={16} /> Delete
+                  <Trash2 size={16} /> {t('item.delete')}
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                  <AlertDialogTitle>{t('dialog.deleteConfirm')}</AlertDialogTitle>
                   <AlertDialogDescription>
-                    This action cannot be undone. This will permanently delete the item.
+                    {t('dialog.deleteDescription')}
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogCancel>{t('dialog.cancel')}</AlertDialogCancel>
                   <AlertDialogAction onClick={() => {
                     onDelete(item.id);
                     onClose();
-                  }}>Delete</AlertDialogAction>
+                  }}>{t('dialog.delete')}</AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
           )}
           
           <div className="flex gap-2">
-            <Button variant="outline" onClick={onClose}>Cancel</Button>
-            <Button onClick={handleSave}>Save</Button>
+            <Button variant="outline" onClick={onClose}>{t('dialog.cancel')}</Button>
+            <Button onClick={handleSave}>{t('dialog.save')}</Button>
           </div>
         </DialogFooter>
       </DialogContent>

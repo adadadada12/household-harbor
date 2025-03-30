@@ -1,8 +1,12 @@
-
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Item, SortOption, FilterOption, CategoryFilter } from '@/types';
 import { toast } from '@/hooks/use-toast';
 import { generateId } from '@/utils/itemUtils';
+
+type NotificationPreferences = {
+  enabled: boolean;
+  daysBeforeExpiry: number;
+};
 
 type ItemContextType = {
   items: Item[];
@@ -18,11 +22,19 @@ type ItemContextType = {
   getFilteredAndSortedItems: () => Item[];
   expiringItems: Item[];
   getExpiringItemsCount: () => number;
+  notificationPreferences: NotificationPreferences;
+  setNotificationPreferences: (prefs: NotificationPreferences) => void;
 };
 
 const ItemContext = createContext<ItemContextType | undefined>(undefined);
 
 const LOCAL_STORAGE_KEY = 'household-harbor-items';
+const NOTIFICATIONS_STORAGE_KEY = 'household-harbor-notifications';
+
+const DEFAULT_NOTIFICATION_PREFS: NotificationPreferences = {
+  enabled: true,
+  daysBeforeExpiry: 3
+};
 
 export const ItemProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [items, setItems] = useState<Item[]>([]);
@@ -30,6 +42,7 @@ export const ItemProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [filterOption, setFilterOption] = useState<FilterOption>('all');
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('all');
   const [expiringItems, setExpiringItems] = useState<Item[]>([]);
+  const [notificationPreferences, setNotificationPreferences] = useState<NotificationPreferences>(DEFAULT_NOTIFICATION_PREFS);
 
   // Load items from localStorage on initial render
   useEffect(() => {
@@ -42,13 +55,24 @@ export const ItemProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setItems([]);
       }
     }
+    
+    // Load notification preferences
+    const savedNotificationPrefs = localStorage.getItem(NOTIFICATIONS_STORAGE_KEY);
+    if (savedNotificationPrefs) {
+      try {
+        setNotificationPreferences(JSON.parse(savedNotificationPrefs));
+      } catch (error) {
+        console.error('Failed to parse notification preferences:', error);
+        setNotificationPreferences(DEFAULT_NOTIFICATION_PREFS);
+      }
+    }
   }, []);
 
   // Save items to localStorage whenever they change
   useEffect(() => {
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(items));
     
-    // Update expiring items
+    // Update expiring items based on notification preferences
     const expiring = items.filter(item => {
       const expireDate = new Date(item.expireDate);
       const today = new Date();
@@ -57,11 +81,16 @@ export const ItemProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const diffTime = expireDate.getTime() - today.getTime();
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
       
-      return diffDays <= 4 && diffDays >= 0;
+      return diffDays <= notificationPreferences.daysBeforeExpiry && diffDays >= 0;
     });
     
     setExpiringItems(expiring);
-  }, [items]);
+  }, [items, notificationPreferences.daysBeforeExpiry]);
+
+  // Save notification preferences when changed
+  useEffect(() => {
+    localStorage.setItem(NOTIFICATIONS_STORAGE_KEY, JSON.stringify(notificationPreferences));
+  }, [notificationPreferences]);
 
   const addItem = (itemData: Omit<Item, 'id' | 'createdAt'>) => {
     const newItem: Item = {
@@ -156,6 +185,8 @@ export const ItemProvider: React.FC<{ children: React.ReactNode }> = ({ children
     getFilteredAndSortedItems,
     expiringItems,
     getExpiringItemsCount,
+    notificationPreferences,
+    setNotificationPreferences,
   };
 
   return <ItemContext.Provider value={value}>{children}</ItemContext.Provider>;

@@ -37,9 +37,13 @@ const Dashboard: React.FC = () => {
     };
   }, []);
   
-  const handleItemClick = (item: Item) => {
+  const handleEditItem = (item: Item) => {
     setSelectedItem(item);
     setShowAddModal(true);
+  };
+  
+  const handleDeleteItem = (id: string) => {
+    deleteItem(id);
   };
   
   const handleCloseModal = () => {
@@ -70,12 +74,13 @@ const Dashboard: React.FC = () => {
         {items.length === 0 ? (
           <EmptyState onAddItem={() => setShowAddModal(true)} />
         ) : (
-          <div className="grid grid-cols-2 gap-4 mt-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
             {items.map(item => (
               <ItemCard 
                 key={item.id} 
                 item={item} 
-                onClick={() => handleItemClick(item)}
+                onEdit={() => handleEditItem(item)}
+                onDelete={() => handleDeleteItem(item.id)}
               />
             ))}
           </div>
