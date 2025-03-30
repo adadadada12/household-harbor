@@ -31,13 +31,27 @@ export const getExpiryText = (daysUntilExpiry: number): string => {
 };
 
 export const calculateExpireDateFromDays = (daysUntilExpiry: number): string => {
-  const date = addDays(new Date(), daysUntilExpiry);
-  return format(date, 'yyyy-MM-dd');
+  try {
+    const date = addDays(new Date(), daysUntilExpiry);
+    return format(date, 'yyyy-MM-dd');
+  } catch (e) {
+    console.error("Error calculating expiry date:", e);
+    // Return today's date as fallback
+    return format(new Date(), 'yyyy-MM-dd');
+  }
 };
 
 export const formatDate = (dateString: string): string => {
-  const date = new Date(dateString);
-  return format(date, 'MMM dd, yyyy');
+  try {
+    const date = new Date(dateString);
+    if (!isValid(date)) {
+      throw new Error("Invalid date");
+    }
+    return format(date, 'MMM dd, yyyy');
+  } catch (e) {
+    console.error("Error formatting date:", e);
+    return "Invalid date";
+  }
 };
 
 export const isItemExpired = (item: Item): boolean => {
@@ -52,7 +66,11 @@ export const isItemExpiring = (item: Item): boolean => {
 export const validateDateString = (dateString: string): boolean => {
   if (!dateString) return false;
   
-  // Try to parse the date in yyyy-MM-dd format
-  const parsedDate = parse(dateString, 'yyyy-MM-dd', new Date());
-  return isValid(parsedDate);
+  try {
+    // Try to parse the date in yyyy-MM-dd format
+    const parsedDate = parse(dateString, 'yyyy-MM-dd', new Date());
+    return isValid(parsedDate);
+  } catch (e) {
+    return false;
+  }
 };

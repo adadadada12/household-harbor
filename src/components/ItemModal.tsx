@@ -8,7 +8,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Item, Category } from '@/types';
 import { Apple, Pill, Trash2 } from 'lucide-react';
 import { calculateExpireDateFromDays, validateDateString } from '@/utils/itemUtils';
-import { format } from 'date-fns';
+import { format, isValid } from 'date-fns';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
@@ -49,7 +49,9 @@ const ItemModal: React.FC<ItemModalProps> = ({
       setName('');
       setCategory('food');
       setQuantity(1);
-      setExpireDate(format(new Date(), 'yyyy-MM-dd'));
+      // Set today's date as default
+      const today = new Date();
+      setExpireDate(format(today, 'yyyy-MM-dd'));
       setPurchaseDate('');
       setDaysUntilExpiry(6);
       setExpiryTab('days');
@@ -104,6 +106,16 @@ const ItemModal: React.FC<ItemModalProps> = ({
     });
     
     onClose();
+  };
+
+  // Safely format a date string for display
+  const safelyFormatDate = (dateString: string): string => {
+    try {
+      const date = new Date(dateString);
+      return isValid(date) ? format(date, 'MMM dd, yyyy') : 'Invalid date';
+    } catch (e) {
+      return 'Invalid date';
+    }
   };
 
   return (
@@ -188,7 +200,7 @@ const ItemModal: React.FC<ItemModalProps> = ({
                   onChange={(e) => handleDaysChange(parseInt(e.target.value) || 0)}
                 />
                 <p className="text-xs text-muted-foreground mt-1">
-                  Will expire on {format(new Date(expireDate), 'MMM dd, yyyy')}
+                  Will expire on {validateDateString(expireDate) ? safelyFormatDate(expireDate) : 'calculating...'}
                 </p>
               </TabsContent>
             </Tabs>
