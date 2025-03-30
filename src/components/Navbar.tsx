@@ -2,11 +2,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { Filter, SlidersHorizontal, Bell, Plus, Home, BarChart2, Settings } from 'lucide-react';
+import { Filter, SlidersHorizontal, Bell, Home, BarChart2, Settings } from 'lucide-react';
 import SortingPopup from './SortingPopup';
 import FilterPopup from './FilterPopup';
 import NotificationPopup from './NotificationPopup';
 import { useItems } from '@/context/ItemContext';
+import { ThemeToggle } from './theme-toggle';
 
 const Navbar: React.FC = () => {
   const location = useLocation();
@@ -76,7 +77,7 @@ const Navbar: React.FC = () => {
   
   return (
     <>
-      <header className="bg-white border-b sticky top-0 z-10">
+      <header className="bg-white border-b sticky top-0 z-10 dark:bg-gray-900 dark:border-gray-800">
         <div className="container mx-auto px-4 py-3 flex justify-between items-center">
           <div className="flex items-center">
             <Link to="/" className="text-xl font-semibold flex items-center">
@@ -161,23 +162,14 @@ const Navbar: React.FC = () => {
                   )}
                 </div>
                 
-                <Button 
-                  size="icon"
-                  className="rounded-full"
-                  onClick={() => {
-                    // This will be handled by the Dashboard component
-                    document.dispatchEvent(new Event('openAddItemModal'));
-                  }}
-                >
-                  <Plus size={20} />
-                </Button>
+                <ThemeToggle />
               </>
             )}
           </div>
         </div>
       </header>
       
-      <nav className="bg-gray-50 py-2 fixed bottom-0 left-0 right-0 border-t z-10">
+      <nav className="bg-gray-50 py-2 fixed bottom-0 left-0 right-0 border-t z-10 dark:bg-gray-900 dark:border-gray-800">
         <div className="container mx-auto px-4 flex justify-center">
           <div className="flex gap-4">
             <Link to="/">

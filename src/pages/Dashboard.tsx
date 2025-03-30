@@ -7,6 +7,8 @@ import Navbar from '@/components/Navbar';
 import CategoryFilterComponent from '@/components/CategoryFilter';
 import EmptyState from '@/components/EmptyState';
 import { Item } from '@/types';
+import { Plus } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const Dashboard: React.FC = () => {
   const { 
@@ -56,7 +58,7 @@ const Dashboard: React.FC = () => {
   const items = getFilteredAndSortedItems();
   
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
+    <div className="min-h-screen bg-gray-50 pb-28 dark:bg-gray-900">
       <Navbar />
       
       <main className="container mx-auto px-4 py-6">
@@ -68,7 +70,7 @@ const Dashboard: React.FC = () => {
         {items.length === 0 ? (
           <EmptyState onAddItem={() => setShowAddModal(true)} />
         ) : (
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4 mt-6">
             {items.map(item => (
               <ItemCard 
                 key={item.id} 
@@ -79,6 +81,15 @@ const Dashboard: React.FC = () => {
           </div>
         )}
       </main>
+      
+      {/* Floating Action Button for adding items */}
+      <Button
+        onClick={() => setShowAddModal(true)}
+        size="icon"
+        className="h-14 w-14 rounded-full fixed bottom-20 right-5 shadow-lg z-10"
+      >
+        <Plus size={24} />
+      </Button>
       
       <ItemModal 
         isOpen={showAddModal}
