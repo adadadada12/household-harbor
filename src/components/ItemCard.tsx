@@ -5,7 +5,6 @@ import { calculateDaysUntilExpiry, getExpirySeverity } from '@/utils/itemUtils';
 import { Apple, ShoppingBag } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { useLanguage } from '@/context/LanguageContext';
-import { format } from 'date-fns';
 
 interface ItemCardProps {
   item: Item;
@@ -52,10 +51,6 @@ const ItemCard: React.FC<ItemCardProps> = ({ item }) => {
             }
           </span>
           <span className="text-sm font-medium">{item.quantity}</span>
-        </div>
-        
-        <div className="text-xs text-muted-foreground mt-auto pt-2">
-          {item.createdAt && format(new Date(item.createdAt), 'MMM d, yyyy')}
         </div>
       </CardContent>
     </Card>

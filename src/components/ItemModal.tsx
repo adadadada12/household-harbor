@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -9,7 +8,6 @@ import { Apple, ShoppingBag, Calendar, Minus, Plus, Trash2, X, Edit } from 'luci
 import { calculateExpireDateFromDays, validateDateString } from '@/utils/itemUtils';
 import { format, isValid } from 'date-fns';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Slider } from "@/components/ui/slider";
 import { useLanguage } from '@/context/LanguageContext';
 
 interface ItemModalProps {
@@ -119,7 +117,11 @@ const ItemModal: React.FC<ItemModalProps> = ({
   };
 
   const renderViewMode = () => {
-    const createdDate = item?.createdAt ? format(new Date(item.createdAt), 'MMM d, yyyy') : '';
+    const dateToShow = purchaseDate ? 
+      format(new Date(purchaseDate), 'MMM d, yyyy') + ` (${t('item.purchased')})` : 
+      item?.createdAt ? 
+      format(new Date(item.createdAt), 'MMM d, yyyy') + ` (${t('item.added')})` : 
+      '';
     
     return (
       <>
@@ -127,7 +129,7 @@ const ItemModal: React.FC<ItemModalProps> = ({
           <div className="space-y-6">
             <div className="space-y-1">
               <h3 className="text-xl font-semibold">{name}</h3>
-              <p className="text-muted-foreground text-sm">{t('item.added')}: {createdDate}</p>
+              <p className="text-muted-foreground text-sm">{dateToShow}</p>
             </div>
 
             <div className="flex justify-between items-center">
@@ -148,12 +150,6 @@ const ItemModal: React.FC<ItemModalProps> = ({
             <div>
               <span className="font-medium">{t('item.expiryDate')}:</span> {format(new Date(expireDate), 'MMM d, yyyy')}
             </div>
-
-            {purchaseDate && (
-              <div>
-                <span className="font-medium">{t('item.purchaseDate')}:</span> {format(new Date(purchaseDate), 'MMM d, yyyy')}
-              </div>
-            )}
           </div>
         </div>
         

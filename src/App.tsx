@@ -13,37 +13,31 @@ import NotFound from "./pages/NotFound";
 import { ItemProvider } from "@/context/ItemContext";
 import { LanguageProvider } from "@/context/LanguageContext";
 
-// Set up global styles for the orange theme
-import "./index.css";
-
-// Create a new QueryClient instance outside of the component
+// Create a new QueryClient instance
 const queryClient = new QueryClient();
 
-// Define App as a proper React functional component
 const App: React.FC = () => {
   return (
-    <React.StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider defaultTheme="light" storageKey="household-harbor-theme">
-          <LanguageProvider>
-            <TooltipProvider>
-              <ItemProvider>
-                <Toaster />
-                <Sonner />
-                <BrowserRouter>
-                  <Routes>
-                    <Route path="/" element={<WhatsLeft />} />
-                    <Route path="/stats" element={<Stats />} />
-                    <Route path="/settings" element={<Settings />} />
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
-                </BrowserRouter>
-              </ItemProvider>
-            </TooltipProvider>
-          </LanguageProvider>
-        </ThemeProvider>
-      </QueryClientProvider>
-    </React.StrictMode>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider defaultTheme="light" storageKey="household-harbor-theme">
+        <LanguageProvider>
+          <TooltipProvider>
+            <ItemProvider>
+              <BrowserRouter>
+                <Routes>
+                  <Route path="/" element={<WhatsLeft />} />
+                  <Route path="/stats" element={<Stats />} />
+                  <Route path="/settings" element={<Settings />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </BrowserRouter>
+              <Toaster />
+              <Sonner />
+            </ItemProvider>
+          </TooltipProvider>
+        </LanguageProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 };
 

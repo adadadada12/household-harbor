@@ -7,8 +7,10 @@ import Navbar from '@/components/Navbar';
 import CategoryFilterComponent from '@/components/CategoryFilter';
 import EmptyState from '@/components/EmptyState';
 import { Item } from '@/types';
-import { Plus } from 'lucide-react';
+import { Plus, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { useLanguage } from '@/context/LanguageContext';
 
 const WhatsLeft: React.FC = () => {
   const { 
@@ -20,8 +22,10 @@ const WhatsLeft: React.FC = () => {
     getFilteredAndSortedItems
   } = useItems();
   
+  const { t } = useLanguage();
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState<Item | undefined>(undefined);
+  const [searchQuery, setSearchQuery] = useState('');
   
   // Listen for add item event from navbar
   useEffect(() => {
@@ -69,21 +73,52 @@ const WhatsLeft: React.FC = () => {
   
   const items = getFilteredAndSortedItems();
   
+  const filteredItems = searchQuery.trim() ? 
+    items.filter(item => 
+      item.name.toLowerCase().includes(searchQuery.toLowerCase())
+    ) : 
+    items;
+  
   return (
     <div className="min-h-screen bg-primary pb-28 dark:bg-gray-900">
       <Navbar />
       
       <main className="container mx-auto px-4 py-6">
-        <CategoryFilterComponent 
-          selectedCategory={categoryFilter} 
-          onChange={setCategoryFilter} 
-        />
+        {/* Search and Filter Section */}
+        <div className="mb-6 space-y-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={18} />
+            <Input 
+              className="pl-10 py-6 bg-white dark:bg-gray-800 rounded-xl"
+              placeholder={t("search.placeholder")}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          
+          <CategoryFilterComponent 
+            selectedCategory={categoryFilter} 
+            onChange={setCategoryFilter} 
+          />
+        </div>
         
-        {items.length === 0 ? (
-          <EmptyState onAddItem={() => setShowAddModal(true)} />
+        {filteredItems.length === 0 ? (
+          searchQuery ? (
+            <div className="flex flex-col items-center justify-center p-8 text-center">
+              <p className="text-lg text-muted-foreground mb-4">{t("search.noResults")}</p>
+              <Button 
+                variant="outline" 
+                onClick={() => setSearchQuery('')}
+              >
+                {t("search.clearSearch")}
+              </Button>
+            </div>
+          ) : (
+            <EmptyState onAddItem={() => setShowAddModal(true)} />
+          )
         ) : (
           <div className="grid grid-cols-2 gap-4 mt-6">
-            {items.map(item => (
+            {filteredItems.map(item => (
               <ItemCard 
                 key={item.id} 
                 item={item} 
@@ -100,7 +135,7 @@ const WhatsLeft: React.FC = () => {
         onClick={() => setShowAddModal(true)}
         variant="secondary"
         size="icon"
-        className="h-14 w-14 rounded-full fixed bottom-24 right-6 shadow-lg z-10"
+        className="h-14 w-14 rounded-full fixed bottom-24 right-6 shadow-lg z-10 flex items-center justify-center"
       >
         <Plus size={24} />
       </Button>
