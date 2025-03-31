@@ -29,17 +29,17 @@ const ItemCard: React.FC<ItemCardProps> = ({ item }) => {
       className={`cursor-pointer hover:shadow-md transition-all border-2 expire-border-${severity} h-full`}
       onClick={handleClick}
     >
-      <CardContent className="p-4 flex flex-col h-full">
-        <div className="flex justify-between items-start gap-2">
-          <h3 className="font-medium text-base truncate pr-2 flex-grow">{item.name}</h3>
+      <CardContent className="p-3 flex flex-col h-full">
+        <div className="flex justify-between items-start gap-1">
+          <h3 className="font-medium text-sm truncate pr-1 flex-grow">{item.name}</h3>
           {item.category === 'food' ? (
-            <Apple size={18} className="text-food flex-shrink-0" />
+            <Apple size={16} className="text-food flex-shrink-0" />
           ) : (
-            <ShoppingBag size={18} className="text-household flex-shrink-0" />
+            <ShoppingBag size={16} className="text-household flex-shrink-0" />
           )}
         </div>
         
-        <div className="flex justify-between items-center mt-2">
+        <div className="flex justify-between items-center mt-1">
           <span className={`expire-text-${severity} text-xs`}>
             {daysUntilExpiry < 0 ? 
               t("item.expiredDaysAgo").replace('{days}', Math.abs(daysUntilExpiry).toString()) :
@@ -50,7 +50,7 @@ const ItemCard: React.FC<ItemCardProps> = ({ item }) => {
               t("item.expiresXDays").replace('{days}', daysUntilExpiry.toString())
             }
           </span>
-          <span className="text-sm font-medium">{item.quantity}</span>
+          <span className="text-xs font-medium">{item.quantity}</span>
         </div>
       </CardContent>
     </Card>

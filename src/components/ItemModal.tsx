@@ -7,9 +7,10 @@ import { Label } from "@/components/ui/label";
 import { Item, Category } from '@/types';
 import { Apple, ShoppingBag, Calendar, Minus, Plus, Trash2, X, Edit } from 'lucide-react';
 import { calculateExpireDateFromDays, validateDateString } from '@/utils/itemUtils';
-import { format, isValid } from 'date-fns';
+import { format } from 'date-fns';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useLanguage } from '@/context/LanguageContext';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ItemModalProps {
   isOpen: boolean;
@@ -27,6 +28,7 @@ const ItemModal: React.FC<ItemModalProps> = ({
   item
 }) => {
   const { t } = useLanguage();
+  const isMobile = useIsMobile();
   const [mode, setMode] = useState<'view' | 'edit'>('view');
   const [name, setName] = useState('');
   const [category, setCategory] = useState<Category>('food');
@@ -118,7 +120,7 @@ const ItemModal: React.FC<ItemModalProps> = ({
   };
 
   const renderViewMode = () => {
-    // Determine which date to show - purchase date has priority, fall back to created date
+    // Show purchase date if available, otherwise show created date
     const dateToShow = purchaseDate ? 
       format(new Date(purchaseDate), 'MMM d, yyyy') + ` (${t('item.purchased')})` : 
       item?.createdAt ? 
@@ -127,59 +129,64 @@ const ItemModal: React.FC<ItemModalProps> = ({
     
     return (
       <>
-        <div className="px-6 py-4">
-          <div className="space-y-6">
+        <div className="px-4 py-3">
+          <div className="space-y-4">
             <div className="space-y-1">
-              <h3 className="text-xl font-semibold">{name}</h3>
-              <p className="text-muted-foreground text-sm">{dateToShow}</p>
+              <h3 className="text-lg font-semibold">{name}</h3>
+              <p className="text-muted-foreground text-xs">{dateToShow}</p>
             </div>
 
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-2">
-                <span className="font-medium">{t('item.category')}:</span>
+                <span className="text-sm font-medium">{t('item.category')}:</span>
                 {category === 'food' ? (
-                  <Apple size={20} className="text-food" />
+                  <Apple size={18} className="text-food" />
                 ) : (
-                  <ShoppingBag size={20} className="text-household" />
+                  <ShoppingBag size={18} className="text-household" />
                 )}
               </div>
               
               <div>
-                <span className="font-medium">{t('item.quantity')}:</span> {quantity}
+                <span className="text-sm font-medium">{t('item.quantity')}:</span> {quantity}
               </div>
             </div>
 
             <div>
-              <span className="font-medium">{t('item.expiryDate')}:</span> {format(new Date(expireDate), 'MMM d, yyyy')}
+              <span className="text-sm font-medium">{t('item.expiryDate')}:</span> {format(new Date(expireDate), 'MMM d, yyyy')}
             </div>
           </div>
         </div>
         
-        <DialogFooter className="border-t p-3 gap-3 flex sm:flex-row">
+        <DialogFooter className="border-t p-3 gap-2 flex sm:flex-row">
           {onDelete && (
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button 
                   variant="destructive" 
                   size="sm"
-                  className="flex items-center gap-1"
+                  className="flex items-center gap-1 h-8 text-xs"
                 >
-                  <Trash2 size={16} /> {t('item.delete')}
+                  <Trash2 size={14} /> {t('item.delete')}
                 </Button>
               </AlertDialogTrigger>
-              <AlertDialogContent>
+              <AlertDialogContent className="max-w-[90%]">
                 <AlertDialogHeader>
                   <AlertDialogTitle>{t('dialog.deleteConfirm')}</AlertDialogTitle>
                   <AlertDialogDescription>
                     {t('dialog.deleteDescription')}
                   </AlertDialogDescription>
                 </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>{t('dialog.cancel')}</AlertDialogCancel>
-                  <AlertDialogAction onClick={() => {
-                    onDelete(item!.id);
-                    onClose();
-                  }}>{t('dialog.delete')}</AlertDialogAction>
+                <AlertDialogFooter className="gap-2 flex flex-row">
+                  <AlertDialogCancel className="h-8 text-xs">{t('dialog.cancel')}</AlertDialogCancel>
+                  <AlertDialogAction 
+                    className="h-8 text-xs"
+                    onClick={() => {
+                      onDelete(item!.id);
+                      onClose();
+                    }}
+                  >
+                    {t('dialog.delete')}
+                  </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
@@ -189,7 +196,7 @@ const ItemModal: React.FC<ItemModalProps> = ({
             variant="outline" 
             size="sm"
             onClick={onClose}
-            className="flex-1 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700"
+            className="flex-1 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 h-8 text-xs"
           >
             {t('dialog.cancel')}
           </Button>
@@ -197,9 +204,9 @@ const ItemModal: React.FC<ItemModalProps> = ({
           <Button 
             onClick={handleEdit}
             size="sm"
-            className="flex-1 bg-secondary hover:bg-secondary/90 text-white flex items-center gap-1"
+            className="flex-1 bg-secondary hover:bg-secondary/90 text-white flex items-center gap-1 h-8 text-xs"
           >
-            <Edit size={16} /> {t('item.edit')}
+            <Edit size={14} /> {t('item.edit')}
           </Button>
         </DialogFooter>
       </>
@@ -209,11 +216,11 @@ const ItemModal: React.FC<ItemModalProps> = ({
   const renderEditMode = () => {
     return (
       <>
-        <div className="px-6 py-4">
+        <div className="px-4 py-3">
           <div className="space-y-4">
             {/* Name Field */}
-            <div className="space-y-2">
-              <Label htmlFor="name" className="text-sm font-medium">
+            <div className="space-y-1">
+              <Label htmlFor="name" className="text-xs font-medium">
                 {t('item.name')} <span className="text-red-500">*</span>
               </Label>
               <Input 
@@ -221,54 +228,54 @@ const ItemModal: React.FC<ItemModalProps> = ({
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Enter name"
-                className={`${errors.name ? "border-red-500" : ""}`}
+                className={`${errors.name ? "border-red-500" : ""} h-9 text-sm`}
               />
               {errors.name && <p className="text-xs text-red-500">{errors.name}</p>}
             </div>
 
             {/* Category and Quantity */}
-            <div className="flex gap-4">
+            <div className="flex gap-3">
               {/* Category Field */}
-              <div className="space-y-2 flex-1">
-                <Label className="text-sm font-medium">{t('item.category')}</Label>
+              <div className="space-y-1 flex-1">
+                <Label className="text-xs font-medium">{t('item.category')}</Label>
                 <div className="flex gap-2">
                   <div 
-                    className={`flex-1 flex items-center justify-center p-3 rounded-lg ${category === 'food' ? 'bg-secondary text-white' : 'bg-gray-100 dark:bg-gray-800'} cursor-pointer transition-colors`}
+                    className={`flex-1 flex items-center justify-center p-2 rounded-lg ${category === 'food' ? 'bg-secondary text-white' : 'bg-gray-100 dark:bg-gray-800'} cursor-pointer transition-colors`}
                     onClick={() => setCategory('food')}
                   >
-                    <Apple size={20} />
+                    <Apple size={18} />
                   </div>
                   <div 
-                    className={`flex-1 flex items-center justify-center p-3 rounded-lg ${category === 'household' ? 'bg-accent text-white' : 'bg-gray-100 dark:bg-gray-800'} cursor-pointer transition-colors`}
+                    className={`flex-1 flex items-center justify-center p-2 rounded-lg ${category === 'household' ? 'bg-accent text-white' : 'bg-gray-100 dark:bg-gray-800'} cursor-pointer transition-colors`}
                     onClick={() => setCategory('household')}
                   >
-                    <ShoppingBag size={20} />
+                    <ShoppingBag size={18} />
                   </div>
                 </div>
               </div>
 
               {/* Quantity Field */}
-              <div className="space-y-2 flex-1">
-                <Label className="text-sm font-medium">
+              <div className="space-y-1 flex-1">
+                <Label className="text-xs font-medium">
                   {t('item.quantity')} <span className="text-red-500">*</span>
                 </Label>
                 <div className={`flex items-center border rounded-lg overflow-hidden ${errors.quantity ? "border-red-500" : "border-input"}`}>
                   <button 
                     type="button"
-                    className="flex-none p-2 hover:bg-gray-100 dark:hover:bg-gray-800"
+                    className="flex-none p-1 hover:bg-gray-100 dark:hover:bg-gray-800"
                     onClick={() => handleQuantityChange(quantity - 1)}
                   >
-                    <Minus size={16} />
+                    <Minus size={14} />
                   </button>
-                  <div className="flex-1 text-center">
+                  <div className="flex-1 text-center text-sm">
                     {quantity}
                   </div>
                   <button 
                     type="button"
-                    className="flex-none p-2 hover:bg-gray-100 dark:hover:bg-gray-800"
+                    className="flex-none p-1 hover:bg-gray-100 dark:hover:bg-gray-800"
                     onClick={() => handleQuantityChange(quantity + 1)}
                   >
-                    <Plus size={16} />
+                    <Plus size={14} />
                   </button>
                 </div>
                 {errors.quantity && <p className="text-xs text-red-500">{errors.quantity}</p>}
@@ -276,8 +283,8 @@ const ItemModal: React.FC<ItemModalProps> = ({
             </div>
 
             {/* Expiry Date */}
-            <div className="space-y-2">
-              <Label htmlFor="expireDate" className="text-sm font-medium">
+            <div className="space-y-1">
+              <Label htmlFor="expireDate" className="text-xs font-medium">
                 {t('item.expiryDate')} <span className="text-red-500">*</span>
               </Label>
               <div className="relative">
@@ -286,16 +293,16 @@ const ItemModal: React.FC<ItemModalProps> = ({
                   type="date" 
                   value={expireDate}
                   onChange={(e) => setExpireDate(e.target.value)}
-                  className={`pl-3 pr-10 ${errors.expireDate ? "border-red-500" : ""}`}
+                  className={`pl-2 pr-8 h-9 text-sm ${errors.expireDate ? "border-red-500" : ""}`}
                 />
-                <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500" size={16} />
+                <Calendar className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500" size={14} />
               </div>
               {errors.expireDate && <p className="text-xs text-red-500">{errors.expireDate}</p>}
             </div>
 
             {/* Purchase Date */}
-            <div className="space-y-2">
-              <Label htmlFor="purchaseDate" className="text-sm font-medium">
+            <div className="space-y-1">
+              <Label htmlFor="purchaseDate" className="text-xs font-medium">
                 {t('item.purchaseDate')}
               </Label>
               <div className="relative">
@@ -304,47 +311,47 @@ const ItemModal: React.FC<ItemModalProps> = ({
                   type="date" 
                   value={purchaseDate}
                   onChange={(e) => setPurchaseDate(e.target.value)}
-                  className={`pl-3 pr-10 ${errors.purchaseDate ? "border-red-500" : ""}`}
+                  className={`pl-2 pr-8 h-9 text-sm ${errors.purchaseDate ? "border-red-500" : ""}`}
                 />
-                <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500" size={16} />
+                <Calendar className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500" size={14} />
               </div>
               {errors.purchaseDate && <p className="text-xs text-red-500">{errors.purchaseDate}</p>}
             </div>
 
             {/* Days until expiry */}
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">
+            <div className="space-y-1">
+              <Label className="text-xs font-medium">
                 {t('item.daysUntilExpiry')}
               </Label>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
                 <button 
                   type="button"
-                  className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md"
+                  className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md"
                   onClick={() => handleDaysChange(Math.max(0, daysUntilExpiry - 1))}
                 >
-                  <Minus size={16} />
+                  <Minus size={14} />
                 </button>
-                <div className="flex-1 px-2">
-                  <div className="text-center text-base mb-1">{daysUntilExpiry}</div>
+                <div className="flex-1 px-1">
+                  <div className="text-center text-sm mb-0">{daysUntilExpiry}</div>
                 </div>
                 <button 
                   type="button"
-                  className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md"
+                  className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md"
                   onClick={() => handleDaysChange(daysUntilExpiry + 1)}
                 >
-                  <Plus size={16} />
+                  <Plus size={14} />
                 </button>
               </div>
             </div>
           </div>
         </div>
         
-        <DialogFooter className="border-t p-3 gap-3 flex sm:flex-row">
+        <DialogFooter className="border-t p-3 gap-2 flex sm:flex-row">
           <Button 
             variant="outline" 
             size="sm"
             onClick={onClose}
-            className="flex-1 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700"
+            className="flex-1 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 h-8 text-xs"
           >
             {t('dialog.cancel')}
           </Button>
@@ -352,7 +359,7 @@ const ItemModal: React.FC<ItemModalProps> = ({
           <Button 
             onClick={handleSave}
             size="sm"
-            className="flex-1 bg-secondary hover:bg-secondary/90 text-white"
+            className="flex-1 bg-secondary hover:bg-secondary/90 text-white h-8 text-xs"
           >
             {t('dialog.save')}
           </Button>
@@ -363,10 +370,10 @@ const ItemModal: React.FC<ItemModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={open => !open && onClose()}>
-      <DialogContent className="sm:max-w-md p-0 overflow-hidden">
-        <div className="p-4 pb-0">
+      <DialogContent className="sm:max-w-md p-0 overflow-hidden w-[90%] max-w-[350px]">
+        <div className="p-3 pb-0">
           <DialogHeader className="relative">
-            <DialogTitle className="text-lg font-bold text-center">
+            <DialogTitle className="text-base font-bold text-center">
               {!item ? t('item.add') : mode === 'view' ? t('item.details') : t('item.edit')}
             </DialogTitle>
             <X 

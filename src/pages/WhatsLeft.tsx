@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useItems } from '@/context/ItemContext';
 import ItemCard from '@/components/ItemCard';
@@ -10,6 +11,7 @@ import { Plus, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useLanguage } from '@/context/LanguageContext';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const WhatsLeft: React.FC = () => {
   const { 
@@ -22,6 +24,7 @@ const WhatsLeft: React.FC = () => {
   } = useItems();
   
   const { t } = useLanguage();
+  const isMobile = useIsMobile();
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState<Item | undefined>(undefined);
   const [searchQuery, setSearchQuery] = useState('');
@@ -78,16 +81,16 @@ const WhatsLeft: React.FC = () => {
     items;
   
   return (
-    <div className="min-h-screen bg-primary pb-28 dark:bg-gray-900">
+    <div className="min-h-screen bg-primary pb-20 dark:bg-gray-900">
       <Navbar />
       
-      <main className="container mx-auto px-4 py-6">
+      <main className="container mx-auto px-3 py-4">
         {/* Search and Filter Section */}
-        <div className="mb-6 space-y-4">
+        <div className="mb-4 space-y-3">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={18} />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={16} />
             <Input 
-              className="pl-10 py-6 bg-white dark:bg-gray-800 rounded-xl"
+              className="pl-9 py-5 h-10 bg-white dark:bg-gray-800 rounded-lg text-sm"
               placeholder={t("search.placeholder")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -102,10 +105,11 @@ const WhatsLeft: React.FC = () => {
         
         {filteredItems.length === 0 ? (
           searchQuery ? (
-            <div className="flex flex-col items-center justify-center p-8 text-center">
-              <p className="text-lg text-muted-foreground mb-4">{t("search.noResults")}</p>
+            <div className="flex flex-col items-center justify-center p-6 text-center">
+              <p className="text-base text-muted-foreground mb-3">{t("search.noResults")}</p>
               <Button 
                 variant="outline" 
+                size="sm"
                 onClick={() => setSearchQuery('')}
               >
                 {t("search.clearSearch")}
@@ -115,7 +119,7 @@ const WhatsLeft: React.FC = () => {
             <EmptyState onAddItem={() => setShowAddModal(true)} />
           )
         ) : (
-          <div className="grid grid-cols-2 gap-4 mt-6">
+          <div className="grid grid-cols-2 gap-3 mt-4">
             {filteredItems.map(item => (
               <ItemCard 
                 key={item.id} 
@@ -132,9 +136,9 @@ const WhatsLeft: React.FC = () => {
         onClick={() => setShowAddModal(true)}
         variant="secondary"
         size="icon"
-        className="h-12 w-12 rounded-full fixed bottom-24 right-6 shadow-lg z-10 flex items-center justify-center"
+        className="h-10 w-10 rounded-full fixed bottom-20 right-4 shadow-lg z-10 flex items-center justify-center"
       >
-        <Plus size={20} />
+        <Plus size={18} />
       </Button>
       
       <ItemModal 
