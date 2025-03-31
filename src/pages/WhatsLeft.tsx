@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useItems } from '@/context/ItemContext';
 import ItemCard from '@/components/ItemCard';
@@ -27,7 +26,6 @@ const WhatsLeft: React.FC = () => {
   const [selectedItem, setSelectedItem] = useState<Item | undefined>(undefined);
   const [searchQuery, setSearchQuery] = useState('');
   
-  // Listen for add item event from navbar
   useEffect(() => {
     const handleOpenAddModal = () => {
       setSelectedItem(undefined);
@@ -130,14 +128,13 @@ const WhatsLeft: React.FC = () => {
         )}
       </main>
       
-      {/* Floating Action Button for adding items */}
       <Button
         onClick={() => setShowAddModal(true)}
         variant="secondary"
         size="icon"
-        className="h-14 w-14 rounded-full fixed bottom-24 right-6 shadow-lg z-10 flex items-center justify-center"
+        className="h-12 w-12 rounded-full fixed bottom-24 right-6 shadow-lg z-10 flex items-center justify-center"
       >
-        <Plus size={24} />
+        <Plus size={20} />
       </Button>
       
       <ItemModal 
