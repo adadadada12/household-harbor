@@ -26,12 +26,12 @@ export default {
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
 				primary: {
-					DEFAULT: 'hsl(var(--primary))',
+					DEFAULT: '#f5f2e9', // Off-White (Earth)
 					foreground: 'hsl(var(--primary-foreground))'
 				},
 				secondary: {
-					DEFAULT: 'hsl(var(--secondary))',
-					foreground: 'hsl(var(--secondary-foreground))'
+					DEFAULT: '#F97316', // Bright Orange (Fire)
+					foreground: '#ffffff'
 				},
 				destructive: {
 					DEFAULT: 'hsl(var(--destructive))',
@@ -42,8 +42,8 @@ export default {
 					foreground: 'hsl(var(--muted-foreground))'
 				},
 				accent: {
-					DEFAULT: 'hsl(var(--accent))',
-					foreground: 'hsl(var(--accent-foreground))'
+					DEFAULT: '#5cb85c', // Grass Green (Wood)
+					foreground: '#ffffff'
 				},
 				popover: {
 					DEFAULT: 'hsl(var(--popover))',
@@ -67,8 +67,8 @@ export default {
 				"expire-red": "#EF5350",
 				"expire-orange": "#FFA726",
 				"expire-green": "#4CAF50",
-				"food": "#8BC34A",
-				"household": "#42A5F5",
+				"food": "#F97316", // Bright Orange (Fire)
+				"household": "#5cb85c", // Grass Green (Wood)
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

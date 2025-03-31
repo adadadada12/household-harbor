@@ -8,6 +8,7 @@ type LanguageContextType = {
   language: Language;
   setLanguage: (language: Language) => void;
   t: (key: string) => string;
+  getLanguageNativeName: (lang: Language) => string;
 };
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -15,6 +16,13 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 // Default language
 const DEFAULT_LANGUAGE = 'en';
 const STORAGE_KEY = 'household-harbor-language';
+
+// Native language names
+const LANGUAGE_NAMES: Record<Language, string> = {
+  'en': 'English',
+  'zh-TW': '繁體中文',
+  'zh-CN': '简体中文'
+};
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [language, setLanguage] = useState<Language>(DEFAULT_LANGUAGE as Language);
@@ -49,8 +57,12 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return translations[key] || key;
   };
 
+  const getLanguageNativeName = (lang: Language): string => {
+    return LANGUAGE_NAMES[lang];
+  };
+
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t }}>
+    <LanguageContext.Provider value={{ language, setLanguage, t, getLanguageNativeName }}>
       {children}
     </LanguageContext.Provider>
   );

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Item, Category } from '@/types';
-import { Apple, ShoppingBag, Calendar, Minus, Plus, Trash2, X } from 'lucide-react';
+import { Apple, ShoppingBag, Calendar, Minus, Plus, Trash2, X, Edit } from 'lucide-react';
 import { calculateExpireDateFromDays, validateDateString } from '@/utils/itemUtils';
 import { format, isValid } from 'date-fns';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
@@ -28,6 +28,7 @@ const ItemModal: React.FC<ItemModalProps> = ({
   item
 }) => {
   const { t } = useLanguage();
+  const [mode, setMode] = useState<'view' | 'edit'>('view');
   const [name, setName] = useState('');
   const [category, setCategory] = useState<Category>('food');
   const [quantity, setQuantity] = useState(1);
@@ -50,6 +51,8 @@ const ItemModal: React.FC<ItemModalProps> = ({
       const diffTime = expiry.getTime() - today.getTime();
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
       setDaysUntilExpiry(Math.max(0, diffDays));
+
+      setMode('view');
     } else {
       setName('');
       setCategory('food');
@@ -58,6 +61,7 @@ const ItemModal: React.FC<ItemModalProps> = ({
       const calculatedDate = calculateExpireDateFromDays(6);
       setExpireDate(calculatedDate);
       setPurchaseDate('');
+      setMode('edit');
     }
     setErrors({});
   }, [item, isOpen]);
@@ -110,21 +114,100 @@ const ItemModal: React.FC<ItemModalProps> = ({
     onClose();
   };
 
-  return (
-    <Dialog open={isOpen} onOpenChange={open => !open && onClose()}>
-      <DialogContent className="sm:max-w-md p-0 overflow-hidden">
-        <div className="p-6 pb-0">
-          <DialogHeader className="relative">
-            <DialogTitle className="text-xl font-bold text-center">
-              {item ? t('item.edit') : t('item.add')}
-            </DialogTitle>
-            <X 
-              className="absolute right-0 top-0 w-5 h-5 cursor-pointer opacity-70 hover:opacity-100" 
-              onClick={onClose}
-            />
-          </DialogHeader>
+  const handleEdit = () => {
+    setMode('edit');
+  };
+
+  const renderViewMode = () => {
+    const createdDate = item?.createdAt ? format(new Date(item.createdAt), 'MMM d, yyyy') : '';
+    
+    return (
+      <>
+        <div className="px-6 py-4">
+          <div className="space-y-6">
+            <div className="space-y-1">
+              <h3 className="text-xl font-semibold">{name}</h3>
+              <p className="text-muted-foreground text-sm">{t('item.added')}: {createdDate}</p>
+            </div>
+
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-2">
+                <span className="font-medium">{t('item.category')}:</span>
+                {category === 'food' ? (
+                  <Apple size={20} className="text-food" />
+                ) : (
+                  <ShoppingBag size={20} className="text-household" />
+                )}
+              </div>
+              
+              <div>
+                <span className="font-medium">{t('item.quantity')}:</span> {quantity}
+              </div>
+            </div>
+
+            <div>
+              <span className="font-medium">{t('item.expiryDate')}:</span> {format(new Date(expireDate), 'MMM d, yyyy')}
+            </div>
+
+            {purchaseDate && (
+              <div>
+                <span className="font-medium">{t('item.purchaseDate')}:</span> {format(new Date(purchaseDate), 'MMM d, yyyy')}
+              </div>
+            )}
+          </div>
         </div>
         
+        <DialogFooter className="flex sm:flex-row p-0 border-t">
+          {onDelete && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button 
+                  variant="destructive" 
+                  className="flex-1 m-2 py-6 flex items-center gap-2"
+                >
+                  <Trash2 size={18} /> {t('item.delete')}
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>{t('dialog.deleteConfirm')}</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    {t('dialog.deleteDescription')}
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>{t('dialog.cancel')}</AlertDialogCancel>
+                  <AlertDialogAction onClick={() => {
+                    onDelete(item!.id);
+                    onClose();
+                  }}>{t('dialog.delete')}</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
+          
+          <Button 
+            variant="outline" 
+            onClick={onClose}
+            className="flex-1 m-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 py-6"
+          >
+            {t('dialog.cancel')}
+          </Button>
+          
+          <Button 
+            onClick={handleEdit}
+            className="flex-1 m-2 bg-secondary hover:bg-secondary/90 text-white py-6 flex items-center gap-2"
+          >
+            <Edit size={18} /> {t('item.edit')}
+          </Button>
+        </DialogFooter>
+      </>
+    );
+  };
+
+  const renderEditMode = () => {
+    return (
+      <>
         <div className="px-6 py-4">
           <div className="space-y-6">
             {/* Name Field */}
@@ -149,13 +232,13 @@ const ItemModal: React.FC<ItemModalProps> = ({
                 <Label className="text-base font-medium">{t('item.category')}</Label>
                 <div className="flex gap-2">
                   <div 
-                    className={`flex-1 flex items-center justify-center p-4 rounded-lg ${category === 'food' ? 'bg-orange-400 text-white' : 'bg-gray-100 dark:bg-gray-800'} cursor-pointer transition-colors`}
+                    className={`flex-1 flex items-center justify-center p-4 rounded-lg ${category === 'food' ? 'bg-secondary text-white' : 'bg-gray-100 dark:bg-gray-800'} cursor-pointer transition-colors`}
                     onClick={() => setCategory('food')}
                   >
                     <Apple size={24} />
                   </div>
                   <div 
-                    className={`flex-1 flex items-center justify-center p-4 rounded-lg ${category === 'household' ? 'bg-orange-400 text-white' : 'bg-gray-100 dark:bg-gray-800'} cursor-pointer transition-colors`}
+                    className={`flex-1 flex items-center justify-center p-4 rounded-lg ${category === 'household' ? 'bg-accent text-white' : 'bg-gray-100 dark:bg-gray-800'} cursor-pointer transition-colors`}
                     onClick={() => setCategory('household')}
                   >
                     <ShoppingBag size={24} />
@@ -256,49 +339,41 @@ const ItemModal: React.FC<ItemModalProps> = ({
         </div>
         
         <DialogFooter className="flex sm:flex-row p-0 border-t">
-          {item && onDelete ? (
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button 
-                  variant="destructive" 
-                  className="flex-1 m-2 py-6"
-                >
-                  {t('item.delete')}
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>{t('dialog.deleteConfirm')}</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    {t('dialog.deleteDescription')}
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>{t('dialog.cancel')}</AlertDialogCancel>
-                  <AlertDialogAction onClick={() => {
-                    onDelete(item.id);
-                    onClose();
-                  }}>{t('dialog.delete')}</AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          ) : (
-            <Button 
-              variant="outline" 
-              onClick={onClose}
-              className="flex-1 m-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 py-6"
-            >
-              {t('dialog.cancel')}
-            </Button>
-          )}
+          <Button 
+            variant="outline" 
+            onClick={onClose}
+            className="flex-1 m-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 py-6"
+          >
+            {t('dialog.cancel')}
+          </Button>
           
           <Button 
             onClick={handleSave}
-            className="flex-1 m-2 bg-orange-400 hover:bg-orange-500 text-white py-6"
+            className="flex-1 m-2 bg-secondary hover:bg-secondary/90 text-white py-6"
           >
             {t('dialog.save')}
           </Button>
         </DialogFooter>
+      </>
+    );
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={open => !open && onClose()}>
+      <DialogContent className="sm:max-w-md p-0 overflow-hidden">
+        <div className="p-6 pb-0">
+          <DialogHeader className="relative">
+            <DialogTitle className="text-xl font-bold text-center">
+              {!item ? t('item.add') : mode === 'view' ? t('item.details') : t('item.edit')}
+            </DialogTitle>
+            <X 
+              className="absolute right-0 top-0 w-5 h-5 cursor-pointer opacity-70 hover:opacity-100" 
+              onClick={onClose}
+            />
+          </DialogHeader>
+        </div>
+        
+        {mode === 'view' && item ? renderViewMode() : renderEditMode()}
       </DialogContent>
     </Dialog>
   );

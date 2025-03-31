@@ -7,10 +7,11 @@ import SortingPopup from './SortingPopup';
 import FilterPopup from './FilterPopup';
 import NotificationPopup from './NotificationPopup';
 import { useItems } from '@/context/ItemContext';
-import { ThemeToggle } from './theme-toggle';
+import { useLanguage } from '@/context/LanguageContext';
 
 const Navbar: React.FC = () => {
   const location = useLocation();
+  const { t } = useLanguage();
   const { 
     sortOption, 
     setSortOption, 
@@ -81,7 +82,7 @@ const Navbar: React.FC = () => {
         <div className="container mx-auto px-4 py-3 flex justify-between items-center">
           <div className="flex items-center">
             <Link to="/" className="text-xl font-semibold flex items-center">
-              <span className="text-primary">Household Harbor</span>
+              <span className="text-secondary">WhatsLeft</span>
             </Link>
           </div>
           
@@ -90,7 +91,7 @@ const Navbar: React.FC = () => {
               <>
                 <div className="relative" ref={filterRef}>
                   <Button 
-                    variant={filterOption !== 'all' ? "default" : "outline"} 
+                    variant={filterOption !== 'all' ? "secondary" : "outline"} 
                     size="icon"
                     onClick={() => togglePopup(
                       showFilterPopup, 
@@ -149,7 +150,7 @@ const Navbar: React.FC = () => {
                   >
                     <Bell size={20} />
                     {expiringCount > 0 && (
-                      <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+                      <span className="absolute -top-1 -right-1 bg-expire-red text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
                         {expiringCount > 9 ? '9+' : expiringCount}
                       </span>
                     )}
@@ -161,15 +162,13 @@ const Navbar: React.FC = () => {
                     </div>
                   )}
                 </div>
-                
-                <ThemeToggle />
               </>
             )}
           </div>
         </div>
       </header>
       
-      <nav className="bg-gray-50 py-2 fixed bottom-0 left-0 right-0 border-t z-10 dark:bg-gray-900 dark:border-gray-800">
+      <nav className="bg-primary py-2 fixed bottom-0 left-0 right-0 border-t z-10 dark:bg-gray-900 dark:border-gray-800">
         <div className="container mx-auto px-4 flex justify-center">
           <div className="flex gap-4">
             <Link to="/">
@@ -178,7 +177,7 @@ const Navbar: React.FC = () => {
                 className="flex flex-col items-center gap-1 h-auto py-2"
               >
                 <Home size={20} />
-                <span className="text-xs">Home</span>
+                <span className="text-xs">{t("dashboard")}</span>
               </Button>
             </Link>
             
@@ -188,7 +187,7 @@ const Navbar: React.FC = () => {
                 className="flex flex-col items-center gap-1 h-auto py-2"
               >
                 <BarChart2 size={20} />
-                <span className="text-xs">Stats</span>
+                <span className="text-xs">{t("stats")}</span>
               </Button>
             </Link>
             
@@ -198,7 +197,7 @@ const Navbar: React.FC = () => {
                 className="flex flex-col items-center gap-1 h-auto py-2"
               >
                 <Settings size={20} />
-                <span className="text-xs">Settings</span>
+                <span className="text-xs">{t("settings")}</span>
               </Button>
             </Link>
           </div>

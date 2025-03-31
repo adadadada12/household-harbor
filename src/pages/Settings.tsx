@@ -1,30 +1,34 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import Navbar from '@/components/Navbar';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Download, Globe, Moon, Sun, Trash2, Upload } from 'lucide-react';
+import { Check, ChevronDown, Download, Globe, Moon, Sun, Trash2, Upload } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { useItems } from '@/context/ItemContext';
 import { useLanguage, Language } from '@/context/LanguageContext';
 import { useTheme } from '@/components/theme-provider';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Slider } from '@/components/ui/slider';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Command, CommandGroup, CommandItem } from '@/components/ui/command';
 
 const Settings: React.FC = () => {
   const { items, notificationPreferences, setNotificationPreferences } = useItems();
-  const { language, setLanguage, t } = useLanguage();
+  const { language, setLanguage, t, getLanguageNativeName } = useLanguage();
   const { theme, setTheme } = useTheme();
+  const [open, setOpen] = useState(false);
+  
+  const languages: Language[] = ['en', 'zh-TW', 'zh-CN'];
   
   const handleExportData = () => {
     try {
       const dataStr = JSON.stringify(items, null, 2);
       const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
       
-      const exportFileDefaultName = `household-harbor-backup-${new Date().toISOString().split('T')[0]}.json`;
+      const exportFileDefaultName = `whatsleft-backup-${new Date().toISOString().split('T')[0]}.json`;
       
       const linkElement = document.createElement('a');
       linkElement.setAttribute('href', dataUri);
@@ -96,7 +100,7 @@ const Settings: React.FC = () => {
   };
   
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-primary dark:bg-gray-900">
       <Navbar />
       
       <main className="container mx-auto px-4 py-6 pb-28">
@@ -121,39 +125,51 @@ const Settings: React.FC = () => {
                 id="darkMode" 
                 checked={theme === 'dark'}
                 onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
-                className="data-[state=checked]:bg-primary"
+                className="data-[state=checked]:bg-secondary"
               />
             </div>
 
             {/* Language Selection */}
             <div className="flex flex-col gap-2 pt-4">
               <Label>{t("settings.language")}</Label>
-              <RadioGroup 
-                value={language} 
-                onValueChange={(value) => setLanguage(value as Language)}
-                className="flex flex-col gap-3 pt-2"
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="en" id="lang-en" />
-                  <Label htmlFor="lang-en" className="flex items-center gap-2 cursor-pointer">
-                    <Globe size={16} /> {t("settings.language.en")}
-                  </Label>
-                </div>
-                
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="zh-TW" id="lang-zh-tw" />
-                  <Label htmlFor="lang-zh-tw" className="flex items-center gap-2 cursor-pointer">
-                    <Globe size={16} /> {t("settings.language.zh-TW")}
-                  </Label>
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="zh-CN" id="lang-zh-cn" />
-                  <Label htmlFor="lang-zh-cn" className="flex items-center gap-2 cursor-pointer">
-                    <Globe size={16} /> {t("settings.language.zh-CN")}
-                  </Label>
-                </div>
-              </RadioGroup>
+              
+              <Popover open={open} onOpenChange={setOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={open}
+                    className="w-full justify-between"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Globe size={16} />
+                      {getLanguageNativeName(language)}
+                    </div>
+                    <ChevronDown size={16} />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-full p-0">
+                  <Command>
+                    <CommandGroup>
+                      {languages.map((lang) => (
+                        <CommandItem
+                          key={lang}
+                          onSelect={() => {
+                            setLanguage(lang);
+                            setOpen(false);
+                          }}
+                          className="flex items-center justify-between px-4 py-2"
+                        >
+                          {getLanguageNativeName(lang)}
+                          {language === lang && (
+                            <Check size={16} className="text-secondary" />
+                          )}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </Command>
+                </PopoverContent>
+              </Popover>
             </div>
           </CardContent>
         </Card>
@@ -176,7 +192,7 @@ const Settings: React.FC = () => {
                 id="notifications" 
                 checked={notificationPreferences.enabled}
                 onCheckedChange={handleNotificationToggle}
-                className="data-[state=checked]:bg-primary"
+                className="data-[state=checked]:bg-secondary"
               />
             </div>
             
@@ -212,7 +228,7 @@ const Settings: React.FC = () => {
                 Download a copy of all your tracked items for backup
               </div>
               <Button 
-                variant="outline" 
+                variant="secondary" 
                 onClick={handleExportData}
                 className="flex items-center gap-2 w-fit"
               >
@@ -227,7 +243,7 @@ const Settings: React.FC = () => {
               </div>
               <div className="flex items-center gap-2">
                 <Button
-                  variant="outline"
+                  variant="secondary"
                   onClick={() => document.getElementById('import-file')?.click()}
                   className="flex items-center gap-2"
                 >
@@ -281,12 +297,12 @@ const Settings: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="text-sm text-muted-foreground">
-              <p>Household Harbor</p>
+              <p>WhatsLeft</p>
               <p className="mt-1">{t("settings.version")} 1.0.0</p>
             </div>
           </CardContent>
           <CardFooter className="text-sm text-muted-foreground">
-            &copy; {new Date().getFullYear()} Household Harbor
+            &copy; {new Date().getFullYear()} WhatsLeft
           </CardFooter>
         </Card>
       </main>

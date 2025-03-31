@@ -1,13 +1,14 @@
 
 const translations = {
   // Navbar & Navigation
-  "dashboard": "Dashboard",
+  "dashboard": "Home",
   "stats": "Stats",
   "settings": "Settings",
   
   // Items
   "item.add": "Add Item",
   "item.edit": "Edit Item",
+  "item.details": "Item Details",
   "item.delete": "Delete Item",
   "item.name": "Item Name",
   "item.category": "Category",
@@ -18,11 +19,13 @@ const translations = {
   "item.daysUntilExpiry": "Days Until Expiry",
   "item.specificDate": "Specific Date",
   "item.purchaseDate": "Purchase Date (Optional)",
+  "item.expiryDate": "Expiry Date",
   "item.willExpireOn": "Will expire on",
   "item.expiredDaysAgo": "Expired {days} days ago",
-  "item.expiresXDays": "Expires in {days} days",
-  "item.expiresToday": "Expires today",
-  "item.expiresTomorrow": "Expires tomorrow",
+  "item.expiresXDays": "In {days} days",
+  "item.expiresToday": "Today",
+  "item.expiresTomorrow": "Tomorrow",
+  "item.added": "Added",
   
   // Filters & Sorting
   "filter.all": "All Items",

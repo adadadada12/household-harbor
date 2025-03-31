@@ -1,13 +1,14 @@
 
 const translations = {
   // Navbar & Navigation
-  "dashboard": "儀表板",
+  "dashboard": "主頁",
   "stats": "統計",
   "settings": "設置",
   
   // Items
   "item.add": "添加物品",
   "item.edit": "編輯物品",
+  "item.details": "物品詳情",
   "item.delete": "刪除物品",
   "item.name": "物品名稱",
   "item.category": "類別",
@@ -17,12 +18,14 @@ const translations = {
   "item.expiryInfo": "有效期信息",
   "item.daysUntilExpiry": "剩餘天數",
   "item.specificDate": "具體日期",
+  "item.expiryDate": "有效期",
   "item.purchaseDate": "購買日期（可選）",
   "item.willExpireOn": "將於以下日期過期",
   "item.expiredDaysAgo": "{days}天前已過期",
-  "item.expiresXDays": "{days}天後過期",
-  "item.expiresToday": "今天過期",
-  "item.expiresTomorrow": "明天過期",
+  "item.expiresXDays": "{days}天後",
+  "item.expiresToday": "今天",
+  "item.expiresTomorrow": "明天",
+  "item.added": "添加於",
   
   // Filters & Sorting
   "filter.all": "所有物品",
