@@ -12,14 +12,17 @@ import { useItems } from '@/context/ItemContext';
 import { useLanguage, Language } from '@/context/LanguageContext';
 import { useTheme } from '@/components/theme-provider';
 import { Slider } from '@/components/ui/slider';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Command, CommandGroup, CommandItem } from '@/components/ui/command';
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger 
+} from '@/components/ui/dropdown-menu';
 
 const Settings: React.FC = () => {
   const { items, notificationPreferences, setNotificationPreferences } = useItems();
   const { language, setLanguage, t, getLanguageNativeName } = useLanguage();
   const { theme, setTheme } = useTheme();
-  const [open, setOpen] = useState(false);
   
   const languages: Language[] = ['en', 'zh-TW', 'zh-CN'];
   
@@ -129,16 +132,14 @@ const Settings: React.FC = () => {
               />
             </div>
 
-            {/* Language Selection */}
+            {/* Language Selection - Using DropdownMenu instead of Command */}
             <div className="flex flex-col gap-2 pt-4">
               <Label>{t("settings.language")}</Label>
               
-              <Popover open={open} onOpenChange={setOpen}>
-                <PopoverTrigger asChild>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
                   <Button
                     variant="outline"
-                    role="combobox"
-                    aria-expanded={open}
                     className="w-full justify-between"
                   >
                     <div className="flex items-center gap-2">
@@ -147,29 +148,22 @@ const Settings: React.FC = () => {
                     </div>
                     <ChevronDown size={16} />
                   </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-full p-0">
-                  <Command>
-                    <CommandGroup>
-                      {languages.map((lang) => (
-                        <CommandItem
-                          key={lang}
-                          onSelect={() => {
-                            setLanguage(lang);
-                            setOpen(false);
-                          }}
-                          className="flex items-center justify-between px-4 py-2"
-                        >
-                          {getLanguageNativeName(lang)}
-                          {language === lang && (
-                            <Check size={16} className="text-secondary" />
-                          )}
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </Command>
-                </PopoverContent>
-              </Popover>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56">
+                  {languages.map((lang) => (
+                    <DropdownMenuItem
+                      key={lang}
+                      onClick={() => setLanguage(lang)}
+                      className="flex items-center justify-between px-4 py-2"
+                    >
+                      {getLanguageNativeName(lang)}
+                      {language === lang && (
+                        <Check size={16} className="text-secondary" />
+                      )}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </CardContent>
         </Card>
